@@ -5,7 +5,10 @@ from ddt import data, ddt, unpack
 
 
 @ddt
-class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
+class BaseTestsAsyncLRUCache(IsolatedAsyncioTestCase):
+    backend = 'memory'
+    extra_kwargs = {}
+
     @data(
         *[
             (2, None, 4),  # eviction, 4 calls
@@ -23,7 +26,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(maxsize=maxsize, ttl=ttl)
+        @async_lru_cache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func(x):
             nonlocal call_count
             call_count += 1
@@ -57,7 +60,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(maxsize=maxsize, ttl=ttl)
+        @async_lru_cache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func(x):
             nonlocal call_count
             call_count += 1
@@ -89,7 +92,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(ttl=ttl)
+        @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def slow_func():
             nonlocal call_count
             call_count += 1
@@ -123,7 +126,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         call_count = 0
 
         class TestClass:
-            @async_lru_cache(ttl=ttl)
+            @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
             async def method(self, x):
                 nonlocal call_count
                 call_count += 1
@@ -159,7 +162,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         :param expected_size: Expected cache size (0)
         """
 
-        @async_lru_cache(ttl=ttl)
+        @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def failing_func():
             raise ValueError(error_msg)
 
@@ -193,7 +196,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         def key_func(a, b):
             return f"{a}-{b}"
 
-        @async_lru_cache(ttl=ttl, key_func=key_func)
+        @async_lru_cache(ttl=ttl, key_func=key_func, backend=self.backend, **self.extra_kwargs)
         async def func(a, b):
             nonlocal call_count
             call_count += 1
@@ -218,7 +221,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         :param expected_size: Size after clear (0)
         """
 
-        @async_lru_cache(ttl=ttl)
+        @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func(x):
             return x
 
@@ -249,7 +252,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         :param value: Value from creator
         :param expected_hits: Expected hits after calls
         """
-        cache = AsyncLRUCache(maxsize=maxsize, ttl=ttl)
+        cache = AsyncLRUCache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
 
         async def creator():
             return value
@@ -283,7 +286,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(maxsize=maxsize, ttl=ttl)
+        @async_lru_cache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func(x):
             nonlocal call_count
             call_count += 1
@@ -321,7 +324,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         :param num_calls: Number of concurrent calls
         :param error_msg: Error message
         """
-        @async_lru_cache(ttl=ttl)
+        @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def failing_func():
             await asyncio.sleep(delay)
             raise ValueError(error_msg)
@@ -349,7 +352,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(maxsize=maxsize, ttl=ttl)
+        @async_lru_cache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func():
             nonlocal call_count
             call_count += 1
@@ -376,7 +379,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         :param ttl: Time-to-live
         :param num_keys: Number of keys
         """
-        @async_lru_cache(maxsize=maxsize, ttl=ttl)
+        @async_lru_cache(maxsize=maxsize, ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def func(x):
             return x
 
@@ -385,7 +388,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
             await func(i)  # Hit
 
         stats = await func.cache_stats()
-        info = func.cache_info()
+        info = await func.cache_info()
 
         self.assertEqual(num_keys, stats['misses'])
         self.assertEqual(num_keys, stats['hits'])
@@ -410,7 +413,7 @@ class TestsAsyncLRUCache(IsolatedAsyncioTestCase):
         """
         call_count = 0
 
-        @async_lru_cache(ttl=ttl)
+        @async_lru_cache(ttl=ttl, backend=self.backend, **self.extra_kwargs)
         async def slow_func():
             nonlocal call_count
             call_count += 1
