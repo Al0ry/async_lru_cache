@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools >= 61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "async-lru-cache"
+version = "0.1.0"
+authors = [{ name = "Andrey Mikhalev", email = "av.mikhalev1996@gmail.com" }]
+description = "Asynchronous LRU cache with TTL support for Python"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = ["asyncio"]
+
+[project.urls]
+Homepage = "https://github.com/Al0ry/async_lru_cache"
+Issues = "https://github.com/Al0ry/async_lru_cache/issues"
